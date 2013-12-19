@@ -48,7 +48,6 @@ FileUtils.cd 'img/raw' do
 
   # Then download the pictures
   count = 0
-
   photos.each do |p|
     break if count >= pictures_number
     url = "http://farm#{p.farm}.static.flickr.com/#{p.server}/#{p.id}_#{p.secret}.jpg"
