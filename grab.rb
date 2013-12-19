@@ -31,10 +31,10 @@ puts "Pattern name? (will be used as output folder)" unless ARGV[1]
 pattern = ARGV[1] || STDIN.gets.chomp # Chomp to ensure compatibility with I/O methods
 
 puts "Number of pictures to download?" unless ARGV[2]
-pictures_number = (ARGV[2] || STDIN.gets).to_i
+images_number = (ARGV[2] || STDIN.gets).to_i
 
-# Search for no copyright restrictions pictures only
-photos = flickr.photos.search text: keywords, sort: :relevance #,license: 7
+# Number of images already retrieved
+count = 0
 
 # Changes the current directory to raw images folder
 FileUtils.cd 'img/raw' do
@@ -46,21 +46,44 @@ FileUtils.cd 'img/raw' do
     # Nothing to do...
   end
 
-  # Then download the pictures
-  count = 0
-  photos.each do |p|
-    break if count >= pictures_number
-    url = "http://farm#{p.farm}.static.flickr.com/#{p.server}/#{p.id}_#{p.secret}.jpg"
-    puts "Retrieving: \"#{p.title}\"\n  #{url}"
-    Net::HTTP.start("farm#{p.farm}.static.flickr.com") do |http|
-      resp = http.get("/#{p.server}/#{p.id}_#{p.secret}.jpg")
-      open("#{pattern}/#{p.id}_#{p.secret}.jpg", "wb") do |file|
-        file.write(resp.body)
+  ################################################################
+  # Use Flickr API to search images
+
+  # Handle results pagination
+  images_per_page = 100
+  pages_number = (images_number.to_f / images_per_page).ceil
+
+  # Iterate through pages
+  1.upto pages_number do |current_page|
+    
+    puts "\n----------------------------------------------------------------\n"
+    puts "-- Search: \"#{keywords}\", page #{current_page}/#{pages_number}"
+    puts "----------------------------------------------------------------\n"
+
+    photos = flickr.photos.search text: keywords,
+                                  sort: :relevance,
+                                  per_page: images_per_page,
+                                  page: current_page
+                                  #,license: 7
+
+    # Then download the pictures
+    photos.each do |p|
+
+      break if count >= images_number
+
+      url = "http://farm#{p.farm}.static.flickr.com/#{p.server}/#{p.id}_#{p.secret}.jpg"
+      puts "Retrieving: \"#{p.title}\"\n  #{url}"
+      Net::HTTP.start("farm#{p.farm}.static.flickr.com") do |http|
+        resp = http.get("/#{p.server}/#{p.id}_#{p.secret}.jpg")
+        open("#{pattern}/#{p.id}_#{p.secret}.jpg", "wb") do |file|
+          file.write(resp.body)
+        end
       end
+      count += 1
     end
-    count += 1
+
   end
 
-  puts "-- #{count} photos downloaded in img/raw/#{pattern}."
-
 end
+
+puts "-- #{count} photos downloaded in img/raw/#{pattern}."
