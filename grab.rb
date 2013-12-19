@@ -3,25 +3,36 @@
 require 'flickraw'
 require 'net/http'
 require 'fileutils'
+require 'yaml'
 
-# Flickr application auth
-FlickRaw.api_key = "app_api_key"
-FlickRaw.shared_secret = "app_shared_secret"
 
-# User auth
-flickr.access_token = "user_access_token"
-flickr.access_secret = "user_access_secret"
+# ////////////////////////////////////////////////////////////////
+# Loading configuration
 
-# Authentication
-login = flickr.test.login
-puts "-- Authenticated as #{login.username}"
+if File.exists? 'config.yml'
+  config = YAML.load File.read('config.yml')
+else
+  STDERR.puts "Configuration file 'config.yml' does not exist."
+  exit
+end
 
-# Display photo licenses
-# licenses = flickr.photos.licenses.getInfo
-# puts "\nAvailable photo licenses:"
-# licenses.each do |l|
-#   puts "#{l.id}: #{l.name}"
-# end
+
+# ////////////////////////////////////////////////////////////////
+# Authentication to Flickr API
+
+begin
+  FlickRaw.api_key       = config['flickr_auth']['app']['api_key']
+  FlickRaw.shared_secret = config['flickr_auth']['app']['shared_secret']
+  flickr.access_token    = config['flickr_auth']['user']['access_token']
+  flickr.access_secret   = config['flickr_auth']['user']['access_secret']
+  login = flickr.test.login
+  puts "-- Authenticated as #{login.username}"
+rescue FlickRaw::FailedResponse, FlickRaw::OAuthClient::FailedResponse => e
+  puts "-- Error: failed authentication to Flickr API"
+  puts "   Message: #{e.message}"
+  exit
+end
+
 
 # Ask user for parameters if not passed in arguments
 puts "Search keywords?" unless ARGV.first

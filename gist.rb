@@ -3,6 +3,12 @@
 require 'opencv'
 include OpenCV
 
+# Display gist in an OpenCV window ?
+display_gist = true
+
+# Remove the unreadable or corrupted images files ?
+remove_bad_files = true
+
 gist = CvMat.new 240, 320, :cv32f
 
 # Ask user for parameters if not passed in arguments
@@ -21,10 +27,16 @@ if ARGV.size == 1 # Only the pattern name has been given in args
       image = begin
                 CvMat.load filename, CV_LOAD_IMAGE_COLOR
               rescue Exception => e
-                puts "Could not open or find the image file img/raw/#{pattern}/#{filename}."
+                puts "Could not open or find the image file #{filename}."
               end
-      image = image.resize CvSize.new(320, 240)
-      gist += image # Sum the image to the gist
+
+      # If image file is unreadable or corrupted, let's get rid of it
+      if image == nil
+        File.unlink filename if remove_bad_files
+      else
+        image = image.resize CvSize.new(320, 240)
+        gist += image # Sum the image to the gist
+      end
     end
 
     # Average the gist
@@ -35,9 +47,11 @@ if ARGV.size == 1 # Only the pattern name has been given in args
   end
 
   gist.save_image "img/gist/#{pattern}.gist.jpg"
+  puts "-- Gist saved to img/gist/#{pattern}.gist.jpg."
 
-  window = GUI::Window.new("Gist #{pattern}") # Create a window for display.
-  window.show(gist.to_8u) # Show our image inside it.
-  GUI::wait_key # Wait for a keystroke in the window.
+  if display_gist
+    window = GUI::Window.new("Gist #{pattern}") # Create a window for display.
+    window.show(gist.to_8u) # Show our image inside it.
+    GUI::wait_key # Wait for a keystroke in the window.
+  end
 end
-
