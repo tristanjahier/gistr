@@ -45,13 +45,13 @@ end
 # Ask user for parameters if not passed in arguments
 
 puts "Search keywords?" unless ARGV.first
-keywords = ARGV.first || STDIN.gets
+keywords = ARGV.first || STDIN.gets.chomp
 
 puts "Pattern name? (will be used as output folder)" unless ARGV[1]
 pattern = ARGV[1] || STDIN.gets.chomp # Chomp to ensure compatibility with I/O methods
 
 puts "Number of pictures to download?" unless ARGV[2]
-images_number = (ARGV[2] || STDIN.gets).to_i
+images_number = (ARGV[2] || STDIN.gets.chomp).to_i
 
 
 # ////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ FileUtils.cd 'img/raw' do
 
   # Iterate through pages
   1.upto pages_number do |current_page|
-    
+
     puts "\n----------------------------------------------------------------\n"
     puts "-- Search: \"#{keywords}\", page #{current_page}/#{pages_number}"
     puts "----------------------------------------------------------------\n"
