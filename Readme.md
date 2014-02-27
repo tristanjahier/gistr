@@ -2,6 +2,8 @@
 
 *Created with fun by [Tristan Jahier](http://tristan-jahier.fr).*
 
+Licence : **GPLv3**
+
 ## Compatibility
 
 *(A least, as far as I know. It might be more or less...)*
