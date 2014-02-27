@@ -1,13 +1,27 @@
 #!/usr/bin/ruby
 
+# Computes a "perceptual gist" as the average of multiple images
+# of the same pattern. Pattern name must be provided by the user
+# in CLI arguments or at runtime.
+#
+# Author::  Tristan Jahier
+# Licence:: GPLv3
+
 require 'opencv'
 include OpenCV
 
+
+# ////////////////////////////////////////////////////////////////
+# Some configuration...
+
 # Display gist in an OpenCV window ?
 display_gist = true
-
 # Remove the unreadable or corrupted images files ?
 remove_bad_files = true
+
+
+# ////////////////////////////////////////////////////////////////
+# Compute perceptual gist
 
 gist = CvMat.new 240, 320, :cv32f
 

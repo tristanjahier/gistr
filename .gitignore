@@ -1,4 +1,5 @@
-**/*.bmp
-**/*.png
-**/*.jpg
+*.bmp
+*.png
+*.jpg
+*.pgm
 config.yml

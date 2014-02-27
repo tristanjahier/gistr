@@ -1,5 +1,12 @@
 #!/usr/bin/ruby
 
+# Connects to Flickr API, searches for images then downloads them.
+# Keywords, pattern name & download limit must be provided by the user
+# in CLI arguments or at runtime.
+#
+# Author::  Tristan Jahier
+# Licence:: GPLv3
+
 require 'flickraw'
 require 'net/http'
 require 'fileutils'
@@ -34,7 +41,9 @@ rescue FlickRaw::FailedResponse, FlickRaw::OAuthClient::FailedResponse => e
 end
 
 
+# ////////////////////////////////////////////////////////////////
 # Ask user for parameters if not passed in arguments
+
 puts "Search keywords?" unless ARGV.first
 keywords = ARGV.first || STDIN.gets
 
@@ -43,6 +52,10 @@ pattern = ARGV[1] || STDIN.gets.chomp # Chomp to ensure compatibility with I/O m
 
 puts "Number of pictures to download?" unless ARGV[2]
 images_number = (ARGV[2] || STDIN.gets).to_i
+
+
+# ////////////////////////////////////////////////////////////////
+# Search images using Flick API
 
 # Number of images already retrieved
 count = 0
@@ -56,9 +69,6 @@ FileUtils.cd 'img/raw' do
   rescue Errno::EEXIST => e
     # Nothing to do...
   end
-
-  ################################################################
-  # Use Flickr API to search images
 
   # Handle results pagination
   images_per_page = 100
